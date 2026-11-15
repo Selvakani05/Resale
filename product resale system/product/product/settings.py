@@ -82,7 +82,7 @@ DATABASES = {
         'USER': os.environ.get('kani05'),
         'PASSWORD': os.environ.get('WLqODlKi7es53IqOtM94yHPJFXDDuVWq'),
         'HOST': os.environ.get('dpg-dbstccl6e07s73ar37vg-a'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'PORT': os.environ.get('5432', '5432'),
         'OPTIONS': {
             'sslmode': 'require',
         },
