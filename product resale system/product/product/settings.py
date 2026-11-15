@@ -75,19 +75,21 @@ WSGI_APPLICATION = 'product.wsgi.application'
 
 import os
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('product_resale_db'),
-        'USER': os.environ.get('kani05'),
-        'PASSWORD': os.environ.get('WLqODlKi7es53IqOtM94yHPJFXDDuVWq'),
-        'HOST': os.environ.get('dpg-dbstccl6e07s73ar37vg-a'),
-        'PORT': os.environ.get('5432', '5432'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
         'OPTIONS': {
             'sslmode': 'require',
         },
     }
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
