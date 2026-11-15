@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Products - CampusKart{% endblock %}
+
+{% block content %}
+<style>
+    .browse-section {
+        padding: 2rem 0;
+    }
+    .browse-header {
+        margin-bottom: 2rem;
+    }
+    .browse-title {
+        color: var(--text-main);
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .browse-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .filters-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        position: sticky;
+        top: 90px;
+        box-shadow: var(--shadow-sm);
+    }
+    .filters-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        background: transparent;
+    }
+    .filters-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+    .filters-body {
+        padding: 1.5rem;
+    }
+
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .toolbar-left h4 {
+        color: var(--text-main);
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+    .toolbar-left p {
+        color: var(--text-muted);
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+    .sort-box {
+        min-width: 200px;
+    }
+
+    .product-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: transform 0.2s;
+    }
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+    }
+    .product-media {
+        position: relative;
+        background: var(--bg-main);
+        border-bottom: 1px solid var(--border-color);
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        overflow: hidden;
+    }
+    .product-media img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    .product-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: var(--bg-main);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    .product-body {
+        padding: 1.25rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-name {
+        color: var(--text-main);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    .product-desc {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+    .product-meta {
+        margin-bottom: 1rem;
+    }
+    .product-price {
+        color: var(--text-main);
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+    .seller-line, .category-line {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+    }
+    .action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-top: auto;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 1rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+    }
+    .empty-icon {
+        font-size: 3rem;
+        color: var(--text-muted);
+        opacity: 0.5;
+        margin-bottom: 1rem;
+    }
+    .empty-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 0.5rem;
+    }
+    
+    .pagination-wrap {
+        margin-top: 3rem;
+    }
+    .pagination .page-link {
+        color: var(--text-main);
+        border-color: var(--border-color);
+        margin: 0 0.25rem;
+        border-radius: var(--radius-sm);
+        min-width: 40px;
+        text-align: center;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: var(--brand-primary);
+        border-color: var(--brand-primary);
+        color: #fff;
+    }
+    .pagination .page-link:hover:not(.active) {
+        background-color: var(--bg-main);
+    }
+</style>
+
+<div class="container browse-section">
+
+    <div class="browse-header">
+        <h1 class="browse-title">Browse Products</h1>
+        <p class="browse-subtitle">Explore student listings and discover items.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="filters-card">
+                <div class="filters-header">
+                    <h5 class="filters-title">Filters</h5>
+                </div>
+                <div class="filters-body">
+                    <form method="get" id="filterForm">
+                        <div class="mb-3">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="q" class="form-control" placeholder="Search products..." value="{{ request.GET.q }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select name="category" class="form-select">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Condition</label>
+                            <select name="condition" class="form-select">
+                                <option value="">All Conditions</option>
+                                <option value="new" {% if request.GET.condition == 'new' %}selected{% endif %}>Brand New</option>
+                                <option value="like_new" {% if request.GET.condition == 'like_new' %}selected{% endif %}>Like New</option>
+                                <option value="good" {% if request.GET.condition == 'good' %}selected{% endif %}>Good</option>
+                                <option value="fair" {% if request.GET.condition == 'fair' %}selected{% endif %}>Fair</option>
+                                <option value="poor" {% if request.GET.condition == 'poor' %}selected{% endif %}>Poor</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Price Range</label>
+                            <div class="d-flex gap-2">
+                                <input type="number" name="min_price" class="form-control" placeholder="Min" value="{{ request.GET.min_price }}">
+                                <input type="number" name="max_price" class="form-control" placeholder="Max" value="{{ request.GET.max_price }}">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary-custom w-100 mb-2">Apply Filters</button>
+                        <a href="{% url 'product_list' %}" class="btn-outline-custom w-100 d-block text-center">Clear</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="col-lg-9">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <h4>Available Items ({{ products.paginator.count|default:products.count }})</h4>
+                </div>
+                <div class="sort-box">
+                    <select class="form-select" id="sortSelect">
+                        <option value="newest">Newest First</option>
+                        <option value="price_low">Price: Low to High</option>
+                        <option value="price_high">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                {% for product in products %}
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card-custom p-0 product-card">
+                            <div class="product-media">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                {% else %}
+                                    <img src="{% static 'images/default-product.jpg' %}" alt="No image available">
+                                {% endif %}
+                                <div class="product-badge">{{ product.get_condition_display }}</div>
+                            </div>
+
+                            <div class="product-body">
+                                <div class="product-name">{{ product.name|truncatechars:32 }}</div>
+                                <div class="product-desc">{{ product.description|truncatechars:68 }}</div>
+
+                                <div class="product-meta">
+                                    <div class="product-price">₹{{ product.price }}</div>
+                                </div>
+
+                                <div class="seller-line">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>{{ product.seller.username }}</span>
+                                </div>
+                                <div class="category-line mb-3">
+                                    <i class="fas fa-tag"></i>
+                                    <span>{{ product.category.name }}</span>
+                                </div>
+
+                                <div class="action-grid mt-auto">
+                                    <a href="{% url 'product_detail' product.id %}" class="btn-outline-custom d-flex align-items-center justify-content-center" style="font-size: 0.85rem; padding: 0.5rem;">
+                                        View
+                                    </a>
+
+                                    {% if user.is_authenticated %}
+                                        {% if user != product.seller %}
+                                            {% if not product.is_sold %}
+                                                <button type="button" class="btn-primary-custom" data-bs-toggle="modal" data-bs-target="#requestModal{{ product.id }}" style="font-size: 0.85rem; padding: 0.5rem;">
+                                                    Request
+                                                </button>
+                                            {% else %}
+                                                <button type="button" class="btn-outline-custom" disabled style="font-size: 0.85rem; padding: 0.5rem; opacity: 0.5;">
+                                                    Sold
+                                                </button>
+                                            {% endif %}
+                                        {% else %}
+                                            <button type="button" class="btn-outline-custom" disabled style="font-size: 0.85rem; padding: 0.5rem; opacity: 0.5;">
+                                                Yours
+                                            </button>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{% url 'login' %}?next={{ request.path }}" class="btn-primary-custom d-flex align-items-center justify-content-center" style="font-size: 0.85rem; padding: 0.5rem;">
+                                            Login
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Request Modal inside the loop -->
+                    {% if user.is_authenticated and user != product.seller and not product.is_sold %}
+                    <div class="modal fade" id="requestModal{{ product.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content card-custom p-0 border-0">
+                                <div class="modal-header border-bottom">
+                                    <h5 class="modal-title" style="font-weight: 600; font-size: 1.1rem;">Request to Buy</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <form method="POST" action="{% url 'request_product' product.id %}">
+                                    {% csrf_token %}
+                                    <div class="modal-body p-4">
+                                        <p class="mb-3" style="color: var(--text-secondary); font-size: 0.95rem;">
+                                            You are requesting to buy <strong>{{ product.name }}</strong>.
+                                        </p>
+
+                                        <div class="mb-0">
+                                            <label for="requestMessage{{ product.id }}" class="form-label">Message to Seller (Optional)</label>
+                                            <textarea id="requestMessage{{ product.id }}" name="message" class="form-control" rows="3" placeholder="I'm interested in this item..."></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer border-top p-3">
+                                        <button type="button" class="btn-outline-custom" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn-primary-custom">Send Request</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="fas fa-box-open"></i></div>
+                            <h4 class="empty-title">No Products Found</h4>
+                            <p class="text-muted">Try adjusting your filters or check back later.</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+                <nav aria-label="Page navigation" class="pagination-wrap">
+                    <ul class="pagination justify-content-center">
+                        {% if products.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Prev</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in products.paginator.page_range %}
+                            {% if products.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if products.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ products.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#sortSelect').on('change', function() {
+            const sortValue = $(this).val();
+            const currentUrl = new URL(window.location.href);
+
+            currentUrl.searchParams.delete('sort');
+
+            if (sortValue !== 'newest') {
+                currentUrl.searchParams.set('sort', sortValue);
+            }
+
+            window.location.href = currentUrl.toString();
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const sortParam = urlParams.get('sort');
+        if (sortParam) {
+            $('#sortSelect').val(sortParam);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Product - CampusKart{% endblock %}
+
+{% block content %}
+<style>
+    .form-wrapper {
+        display: flex;
+        justify-content: center;
+        padding: 3rem 1rem;
+    }
+    .form-card {
+        max-width: 700px;
+        width: 100%;
+    }
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-main);
+    }
+    .page-subtitle {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .info-box {
+        background-color: var(--bg-main);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    .form-text {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+    }
+    .error-text {
+        color: var(--danger-color);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+</style>
+
+<div class="form-wrapper">
+    <div class="card-custom form-card">
+        <h1 class="page-title">Sell an Item</h1>
+        <p class="page-subtitle">List your product on CampusKart to reach students instantly.</p>
+        
+        <div class="info-box">
+            <i class="fas fa-lightbulb mt-1 text-muted"></i>
+            <div><strong>Tip:</strong> Provide clear pictures and an honest description to sell your item faster.</div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label for="{{ form.name.id_for_label }}" class="form-label">Product Title *</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="error-text">{{ form.name.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label for="{{ form.category.id_for_label }}" class="form-label">Category *</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                        <div class="error-text">{{ form.category.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.condition.id_for_label }}" class="form-label">Condition *</label>
+                    {{ form.condition }}
+                    {% if form.condition.errors %}
+                        <div class="error-text">{{ form.condition.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.price.id_for_label }}" class="form-label">Price (₹) *</label>
+                {{ form.price }}
+                {% if form.price.errors %}
+                    <div class="error-text">{{ form.price.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.description.id_for_label }}" class="form-label">Description *</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="error-text">{{ form.description.errors.0 }}</div>
+                {% endif %}
+                <div class="form-text">Include brand, usage duration, defects, or exciting features.</div>
+            </div>
+
+            <div class="mb-4">
+                <label for="{{ form.image.id_for_label }}" class="form-label">Product Image</label>
+                {{ form.image }}
+                {% if form.image.errors %}
+                    <div class="error-text">{{ form.image.errors.0 }}</div>
+                {% endif %}
+                <div class="form-text">Upload a high quality picture. Supported formats: JPG, PNG.</div>
+            </div>
+
+            <div class="mt-4 pt-4 border-top d-flex gap-3">
+                <button type="submit" class="btn-primary-custom" style="min-width: 150px;">List Product</button>
+                <a href="{% url 'dashboard' %}" class="btn-outline-custom">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
