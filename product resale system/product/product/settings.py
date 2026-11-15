@@ -1,6 +1,5 @@
 import os
 import sys
-import dj_database_url
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,12 +73,20 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'product.wsgi.application'
 
+import os
+
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('product_resale_db'),
+        'USER': os.environ.get('kani05'),
+        'PASSWORD': os.environ.get('WLqODlKi7es53IqOtM94yHPJFXDDuVWq'),
+        'HOST': os.environ.get('dpg-dbstccl6e07s73ar37vg-a'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
