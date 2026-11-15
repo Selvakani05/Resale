@@ -2,9 +2,10 @@ altgraph==0.17.5
 asgiref==3.11.1
 certifi==2026.2.25
 charset-normalizer==3.4.6
+cryptography
 Django==6.0.3
 django-allauth==65.15.0
-gunicorn==25.1.0
+gunicorn
 idna==3.11
 packaging==26.0
 pefile==2024.8.26
